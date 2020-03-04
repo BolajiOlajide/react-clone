@@ -1,0 +1,8 @@
+{
+  "name": "react-clone",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "git@github.com:BolajiOlajide/react-clone.git",
+  "author": "Bolaji Olajide",
+  "license": "MIT"
+}
