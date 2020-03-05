@@ -6,7 +6,15 @@ const React = {
    */
   createElement: (tag, props, ...children) => {
     if (typeof tag === 'function') {
-      return tag(props);
+      try {
+        return tag(props);
+      } catch ({ promise, key }) {
+        promise.then(data => {
+          promiseCache.set(key, data);
+          rerender();
+        })
+        return { tag: 'h1', props: { children: ['I AM LOADING'] } }
+      }
     }
 
     const element = {
@@ -33,10 +41,22 @@ const useState = (initialState) => {
   return [states[FROZENCURSOR], setState]
 };
 
+const promiseCache = new Map();
+
+const createResource = (asyncfn, key) => {
+  if (promiseCache.has(key)) {
+    return promiseCache.get(key);
+  }
+
+  throw { promise: asyncfn(), key }
+}
 
 const App = () => {
-  const [name, setName] = useState("person")
-  const [count, setCount] = useState(0)
+  const [name, setName] = useState("person");
+  const [count, setCount] = useState(0);
+  const dogPhoto = createResource(() => fetch('https://dog.ceo/api/breeds/image/random')
+    .then(res => res.json())
+    .then(payload => payload.message), 'dogphoto');
 
   return (
     <div className="header">
@@ -48,6 +68,8 @@ const App = () => {
       <h2>The count is {count}.</h2>
       <button onclick={() => setCount(count+1)}>+</button>
       <button onclick={() => setCount(count-1)}>-</button>
+
+      <img src={dogPhoto} alt="good dog" />
 
       <p>
         Lorem ipsum dolor sit amet consectetur
